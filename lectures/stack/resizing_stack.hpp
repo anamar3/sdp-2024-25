@@ -33,8 +33,8 @@ private:
         copyData(rs.data);
     }
 
-    void resize() {
-        capacity *= 2;
+    void resize(size_t n) {
+        capacity = n;
         std::clog << "Разширяваме стека до големина " << capacity << std::endl;
         T* old_data = data;
         data = new T[capacity];
@@ -70,7 +70,7 @@ public:
     // амортизирана сложност в средния случай: O(1)
     void push(T const& x) {
         if (full())
-            resize();
+            resize(capacity*2);
         data[++top] = x;
     }
 
@@ -78,7 +78,14 @@ public:
     T pop() {
         if (empty())
             throw std::runtime_error("Опит за изключване от празен стек");
-        return data[top--];
+
+        T topEl = data[top--];
+
+        if (capacity > INITIAL_CAPACITY && top < capacity / 4) {
+            resize(std::max(capacity / 2, INITIAL_CAPACITY));
+        }
+
+        return topEl;
      }
 
     // поглеждане на елемента на върха на стека
